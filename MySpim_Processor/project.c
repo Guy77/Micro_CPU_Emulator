@@ -200,7 +200,17 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg)
 {
+	if (RegWrite == 0){return;} //if writing to the register is false, then do nothing
 
+	unsigned Register_Index; //Make it exist on the stack
+	if (RegDst == 0) {Register_Index = r2;} //check if we should use r2 or r3
+	else {Register_Index = r3;}
+
+	unsigned Data; //Make it exist on the stack
+	if (MemtoReg == 0){Data = ALUresult;} //check if ALUresult or memdata is used based on MemtoReg value
+	else {Data = memdata;}
+
+	Reg[Register_Index] = Data; //Apply specified data to specified Register
 }
 
 /* PC update */
