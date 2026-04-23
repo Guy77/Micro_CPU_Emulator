@@ -217,12 +217,18 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
-	if (Branch == 0 || Zero == 0){return;} //Do nothing
+	unsigned Update = *PC + 4; //Get the base case for the new PC value
 
-	unsigned new_Branch = ((*PC)+4) + (extended_value << 2);
+    if (Branch == 1 && Zero == 1) //if branch is true and zero is true, use the branch path
+    {
+		Update = (*PC + 4) + (extended_value << 2); //take the value of PC+4 added with the shifted value of the passed 32 bit binary shifted left by 2
+    }
 
-	unsigned new_jump = ((*PC)+4) + (jsec << 2);
+    if (Jump == 1) //if jump is active take the PC+4 (masked with upper 4 bits) and OR it with the shifted jsec (lower 28 bits)
+    {
+		Update = ( (*PC + 4)&0xF0000000 ) | (jsec << 2); //extra parenthesis just in case for correct order
+    }
 
-
+    *PC = Update; //update PC
 }
 
