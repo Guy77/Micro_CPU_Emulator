@@ -217,6 +217,12 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC)
 {
+	if (Branch == 0 || Zero == 0){return;} //Do nothing
+
+	unsigned new_Branch = ((*PC)+4) + (extended_value << 2);
+
+	unsigned new_jump = ((*PC)+4) + (jsec << 2);
+
 
 }
 
