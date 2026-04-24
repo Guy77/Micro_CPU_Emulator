@@ -264,10 +264,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 			{
 				Operation_type = 3; break;
 			}
-			default:
-			{
-				return 1;
-			}
+			default: {return 1;}
 		}
 	}
 	else { Operation_type = ALUOp; } //otherwise, the passed operation and type are the same
