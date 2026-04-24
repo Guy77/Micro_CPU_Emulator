@@ -73,7 +73,11 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
+	if (PC % 4 != 0 || PC > 0xFFFC ){return 1;} //if the index size is incorrect, then halt early, returning 1 OR if PC has a memory size greater than 0xFFFC
 
+	*instruction = Mem[PC >> 2]; //Gather index of instructions from shifted PC within memory to get instructions
+
+	return 0; //All variables met requirements
 }
 
 
@@ -103,7 +107,91 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 /* 15 Points */
 int instruction_decode(unsigned op,struct_controls *controls)
 {
+	//Set these all to 0 since thats a reoccuring theme most of these instructions will have
+	//given they dont use every single added operation, just a select few
+	controls->RegDst = 0;
+	controls->Jump = 0;
+	controls->Branch = 0;
+	controls->MemRead = 0;
+	controls->MemtoReg = 0;
+	controls->ALUOp = 0;
+	controls->MemWrite = 0;
+	controls->ALUSrc = 0;
+	controls->RegWrite = 0;
 
+	switch (op)
+	{
+		case 0: //R type instruction
+		{
+			controls->RegDst = 1;
+			controls->ALUOp = 7;
+			controls->RegWrite = 1;
+			break;
+		}
+		case 2: //j type instruction
+		{
+			controls->RegDst = 2;
+			controls->Jump = 1;
+			controls->MemtoReg = 2;
+			controls->ALUSrc = 2;
+			break;
+		}
+		case 4: //beq instruction
+		{
+			controls->RegDst=2;
+			controls->Branch = 1;
+			controls->MemtoReg = 2;
+			controls->ALUOp = 1;
+			break;
+		}
+		case 8: //addi instruction
+		{
+			controls->ALUSrc = 1;
+			controls->RegWrite = 1;
+			break;
+		}
+		case 10: //slti instruction
+		{
+			controls->ALUOp = 2;
+			controls->ALUSrc = 1;
+			controls->RegWrite = 1;
+			break;
+		}
+		case 11: //sltiu instruction
+		{
+			controls->ALUOp = 3;
+			controls->ALUSrc = 1;
+			controls->RegWrite = 1;
+			break;
+		}
+		case 15: //lui instruction
+		{
+			controls->ALUOp = 6;
+			controls->ALUSrc = 1;
+			controls->RegWrite = 1;
+			break;
+		}
+		case 35: //lw instruction
+		{
+			controls->MemRead = 1;
+			controls->MemtoReg = 1;
+			controls->ALUSrc = 1;
+			controls->RegWrite = 1;
+			break;
+		}
+		case 43: //sw instruction
+		{
+			controls->RegDst = 2;
+			controls->MemtoReg = 2;
+			controls->MemWrite = 1;
+			controls->ALUSrc = 1;
+			break;
+		}
+
+		default: {return 1;} //illegal instruction
+	}
+
+	return 0; //legal instructions + set controls
 }
 
 /* Read Register */
@@ -186,13 +274,30 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 	//Pass values to the actual ALU logic
 	ALU(data1, Value_2, Operation_type, ALUresult, Zero); //run the operation
 
+	return 0;
+
 }
 
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
+	if (MemWrite == 1 || MemRead == 1) //if memwrite or memread is active, check the alignment and memory size of ALU
+	{
+		if (ALUresult % 4 != 0){return 1;} //not word aligned, stop
+		if (ALUresult > 0xFFFC){return 1;} //memory size too small, stop
+	}
 
+	if (MemRead) //if memread is active, read the data and store it to another memory storage
+	{
+		*memdata = Mem[ALUresult >> 2]; //write relevant data from memory into memdata
+	}
+	if (MemWrite)//if memwrite is active, write the data into memory
+	{
+		Mem[ALUresult >> 2] = data2; //write data into memory
+	}
+
+	return 0; //executed without issue
 }
 
 
