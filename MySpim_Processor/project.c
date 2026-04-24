@@ -207,7 +207,6 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
-	//TODO look at this later
 	//If the value is a negative represented value. So it commits a AND operation with 1 the 16th bit
 	//the static value is mainly just looking for 1 at the very left handside of the binary at 16 bits
 	//if "1" is found against the passed offset on the furthest left bit (for 16 bits) then this procs
@@ -236,8 +235,6 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 	if (ALUSrc == 0) { Value_2 = data2; }
 	else {	Value_2 = extended_value;}
 
-
-	//TODO Look at this later
 	char Operation_type; //temp variable for the operation code that will be run
 	if (ALUOp == 7) //if the operation code is 7, check the specified function type to run
 	{
@@ -262,6 +259,10 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 			case 42:
 			{
 				Operation_type = 2; break;
+			}
+			case 43:
+			{
+				Operation_type = 3; break;
 			}
 			default:
 			{
